@@ -15,8 +15,11 @@ const SUGGESTED_QUESTIONS = [
   "Hvad skal jeg fokusere på før quizzen?",
 ];
 
+const CLOSED_HEIGHT = 118;
+const OPEN_MIN_HEIGHT = 520;
+
 export default function Home() {
- const courseId =
+  const courseId =
   typeof window !== "undefined"
     ? new URLSearchParams(window.location.search).get("courseId") ?? "default"
     : "default";
@@ -24,7 +27,7 @@ export default function Home() {
 const lessonId =
   typeof window !== "undefined"
     ? new URLSearchParams(window.location.search).get("lessonId") ?? "intro"
-    : "intro";  const [isOpen, setIsOpen] = useState(false);
+    : "intro";const [isOpen, setIsOpen] = useState(false);
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -38,6 +41,35 @@ const lessonId =
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const endOfMessagesRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  function sendHeight() {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const measureAndSend = () => {
+      const containerHeight = containerRef.current?.scrollHeight ?? 0;
+      const documentHeight = Math.max(
+        document.documentElement.scrollHeight,
+        document.body.scrollHeight,
+        containerHeight
+      );
+
+      const nextHeight = isOpen
+        ? Math.max(OPEN_MIN_HEIGHT, documentHeight)
+        : CLOSED_HEIGHT;
+
+      window.parent.postMessage(
+        { type: "resize-tutor", height: nextHeight },
+        "*"
+      );
+    };
+
+    window.requestAnimationFrame(() => {
+      window.setTimeout(measureAndSend, 0);
+    });
+  }
 
   useEffect(() => {
     if (isOpen) {
@@ -51,6 +83,14 @@ const lessonId =
       block: "end",
     });
   }, [messages, isLoading, isOpen]);
+
+  useEffect(() => {
+    sendHeight();
+  }, [isOpen, messages, isLoading]);
+
+  useEffect(() => {
+    sendHeight();
+  }, []);
 
   async function submitMessage(nextQuestion: string) {
     const trimmedQuestion = nextQuestion.trim();
@@ -131,14 +171,15 @@ const lessonId =
 
   return (
     <main
-      className="flex h-[100vh] items-start justify-center bg-[#f7f8fb] p-2 text-slate-950 sm:p-3"
+      className="flex min-h-[110px] justify-center bg-[#f7f8fb] p-2 text-slate-950"
       style={{
         fontFamily: "Montserrat, Arial, sans-serif",
       }}
     >
       <div
-        className={`flex w-full max-w-[720px] flex-col overflow-hidden rounded-[26px] border border-slate-200/80 bg-white shadow-[0_18px_40px_rgba(0,48,103,0.08)] transition-all duration-300 ease-out ${
-          isOpen ? "h-[85vh]" : "h-[84px]"
+        ref={containerRef}
+        className={`flex w-full max-w-[720px] flex-col overflow-hidden rounded-[26px] border border-slate-200/80 bg-white shadow-[0_18px_40px_rgba(0,48,103,0.08)] transition-[height] duration-300 ease-out ${
+          isOpen ? "h-[460px]" : "h-[92px]"
         }`}
       >
         {isOpen ? (
