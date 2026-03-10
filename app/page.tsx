@@ -2,7 +2,6 @@
 
 import { FormEvent, useEffect, useRef, useState } from "react";
 
-
 type ChatMessage = {
   id: string;
   role: "assistant" | "user";
@@ -17,11 +16,15 @@ const SUGGESTED_QUESTIONS = [
 ];
 
 export default function Home() {
-const courseId =
+ const courseId =
   typeof window !== "undefined"
     ? new URLSearchParams(window.location.search).get("courseId") ?? "default"
     : "default";
-  const [isOpen, setIsOpen] = useState(false);
+
+const lessonId =
+  typeof window !== "undefined"
+    ? new URLSearchParams(window.location.search).get("lessonId") ?? "intro"
+    : "intro";  const [isOpen, setIsOpen] = useState(false);
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -77,6 +80,7 @@ const courseId =
         body: JSON.stringify({
           message: trimmedQuestion,
           courseId,
+          lessonId,
         }),
       });
 
