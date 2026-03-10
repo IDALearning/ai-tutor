@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "AI Tutor",
-  description: "Simple course assistant chat interface",
+  description: "En enkel kursusassistent med chat",
 };
 
 export default function RootLayout({
@@ -23,7 +23,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="da">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
